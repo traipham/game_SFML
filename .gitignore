@@ -19,6 +19,7 @@ Debug
 *.filters
 *.user
 .vs
+*.txt
 
 # Compiled Object files
 *.slo

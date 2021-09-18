@@ -11,8 +11,7 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
-Debug/.*
-Debug/first_SFML_game.tlog/.*
+/Debug
 
 # Compiled Object files
 *.slo

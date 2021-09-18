@@ -11,7 +11,7 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
-/Debug
+Debug
 
 # Compiled Object files
 *.slo

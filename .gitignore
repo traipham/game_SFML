@@ -11,7 +11,15 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
-/Debug
+Debug
+
+# Project files
+*.sln
+*.vcxproj
+*.filters
+*.user
+.vs
+*.txt
 
 # Compiled Object files
 *.slo

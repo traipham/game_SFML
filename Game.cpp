@@ -18,6 +18,11 @@ void Game::initVariables() {
 	this->mouseHeld = false;
 }
 
+void Game::initFonts()
+{
+	this->font.loadFromFile();
+}
+
 void Game::initWindow() {
 	this->videoMode.height = 720;
 	this->videoMode.width = 1280;

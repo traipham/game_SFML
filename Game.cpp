@@ -11,8 +11,8 @@ void Game::initVariables() {
 	//int maxEnemies;
 	this->endGame = false;
 	this->points = 0;
-	this->health = 10;
-	this->enemySpawnTimerMax = 10.f;
+	this->health = 20;
+	this->enemySpawnTimerMax = 20.f;
 	this->enemySpawnTimer = this->enemySpawnTimerMax;
 	this->maxEnemies = 5;
 	this->mouseHeld = false;
@@ -20,7 +20,19 @@ void Game::initVariables() {
 
 void Game::initFonts()
 {
-	this->font.loadFromFile();
+	if (!this->font.loadFromFile("Fonts/Staatliches-Regular.ttf")) 	// load fonts
+	{
+		std::cout << "ERROR::GAME::INITFONTS::Failed to load font!" << "\n";
+	}
+}
+
+void Game::initText()
+{
+	this->uiText.setFont(this->font); // set font for text
+	this->uiText.setCharacterSize(24);
+	this->uiText.setFillColor(sf::Color::Black);
+	this->uiText.setStyle(sf::Text::Bold);
+	this->uiText.setString("NONE");
 }
 
 void Game::initWindow() {
@@ -33,11 +45,13 @@ void Game::initWindow() {
 	this->window->setFramerateLimit(60);
 }
 
+
+
 void Game::initEnemies()
 {
 	this->enemy.setPosition(10.f, 10.f); // Set position 
 	this->enemy.setSize(sf::Vector2f(100.f, 100.f)); // setSize(sf::Vector2f param) Vector2f(float x, float y);
-	this->enemy.setScale(sf::Vector2f(0.5f, 0.5f)); // Scales object
+	this->enemy.setScale(sf::Vector2f(1.0f, 1.0f)); // Scales object
 	this->enemy.setFillColor(sf::Color::Red); // Set color 
 	this->enemy.setOutlineColor(sf::Color::Black); // Set border color
 	this->enemy.setOutlineThickness(2.f); // Set border thickness
@@ -46,6 +60,8 @@ void Game::initEnemies()
 // Constructor
 Game::Game() {
 	this->initVariables();
+	this->initFonts();
+	this->initText();
 	this->initWindow();
 	this->initEnemies();
 }
@@ -83,9 +99,43 @@ void Game::spawnEnemies()
 	);
 	//std::cout << this->enemy.getSize().y;
 
-	this->enemy.setFillColor(sf::Color::Green);
+	/*
+	* 
+	* Randomize enemy type by color change and scaling 
+	* - Add different amount of points for different enemies
+	* - Lose more health based on enemies ? 
+	* - enemy moves faster?
+	* 
+	*/ 
+	int type = rand() % 10; // range from 0 to 9
+	switch (type)
+	{
+	case(0):
+		this->enemy.setFillColor(sf::Color::Red);
+		this->enemy.setScale(0.3f, 0.3f);
+		break;
+	case(1):
+	case(2):
+	case(3):
+		this->enemy.setFillColor(sf::Color::Blue);
+		this->enemy.setScale(0.5f, 0.5f);
+		break;
+	case(4):
+	case(5):
+	case(6):
+	case(7):
+	case(8):
+	case(9):
+		this->enemy.setFillColor(sf::Color::Green);
+		this->enemy.setScale(1.0f, 1.0f);
+		break;
+	default:
+		this->enemy.setFillColor(sf::Color::Yellow);
+		this->enemy.setScale(1.0f, 1.0f);
+		break;
+	}
 
-	// spawn enemy
+	// spawn enemy (push into vector)
 	this->enemies.push_back(this->enemy);
 }
 
@@ -180,12 +230,24 @@ void Game::updateEnemies()
 			{
 				if (this->enemies[i].getGlobalBounds().contains(this->mousePosView))
 				{
+					// When click on enemy add point accordingly
+					if (this->enemies[i].getFillColor() == sf::Color::Red)
+					{
+						this->points += 10;
+					}
+					else if (this->enemies[i].getFillColor() == sf::Color::Blue)
+					{
+						this->points += 5;
+					}
+					else if (this->enemies[i].getFillColor() == sf::Color::Green)
+					{
+						this->points += 1;
+					}
+					std::cout << "Points: " << this->points << "\n";
+
+					// delete enemy
 					deleted = true;
 					this->enemies.erase(this->enemies.begin() + i);
-
-					// Gaine point
-					this->points++;
-					std::cout << "Points: " << this->points << "\n";
 				}
 			}
 		}
@@ -197,6 +259,32 @@ void Game::updateEnemies()
 	
 }
 
+void Game::updateText()
+{
+	std::stringstream ss;
+
+	ss << "Points: " << this->points << "\n" 
+		<< "Health: " << this->health;
+
+	this->uiText.setString(ss.str()); //stringstream.str() converts stream object to string
+
+	//if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	//{
+	//	if (this->mouseHeld == false)
+	//	{
+	//		this->mouseHeld = true;
+	//		if (this->uiText.getGlobalBounds().contains(this->mousePosView))
+	//		{
+	//			this->uiText.setFillColor(sf::Color::Magenta);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		this->mouseHeld = false;
+	//	}
+	//}
+}
+
 /*
 * 
 * Call pollevent function to constantly update window based on events
@@ -206,6 +294,9 @@ void Game::update() {
 	if (!this->endGame) 
 	{
 		this->updateMousePosition();
+
+		// Update Text
+		this->updateText();
 
 		// Update enemies
 		this->updateEnemies();
@@ -227,15 +318,27 @@ void Game::update() {
 }
 
 /*
+* 
+* 
+* Note:
+* - RenderTarget allow us to not be bound to screen and choose where to draw 
+* different elements
+*/
+void Game::renderText(sf::RenderTarget& target) 
+{
+	target.draw(this->uiText); 
+}
+
+/*
 * @return void
 * 
 * render/display enemies
 * 
 */
-void Game::renderEnemies()
+void Game::renderEnemies(sf::RenderTarget& target)
 {
 	for (auto &e : this->enemies) {
-		this->window->draw(e);
+		target.draw(e);
 	}
 }
 
@@ -254,7 +357,9 @@ void Game::render() {
 
 	// Draw game objects
 		// this->window->draw(this->enemy); // Don't directly draw to window like this
-	this->renderEnemies(); // render/display enemies 
+	this->renderEnemies(*this->window); // render/display enemies 
+
+	this->renderText(*this->window);
 
 	this->window->display(); // Tell app that window is done drawing
 }

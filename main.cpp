@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.h"
+#include <SFML/Audio.hpp>;
 // using namespace sf;
 
 int main() {
@@ -11,10 +12,14 @@ int main() {
 
 	// Init Game Engine
 	Game game;
-
+	sf::Music music;
+	if (!music.openFromFile("Music/Johan_Vandegriff_Hyperspace.wav"))
+	{
+		return -1;
+	}
+	music.play();
 	// Game loop
 	while (game.running() && !game.getEndGame()) {
-		// Event polling
 
 		// Update
 		game.update();

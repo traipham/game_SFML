@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <sstream> // String stream we can mix data types into string
 // Faster to have include in this .h file
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -30,6 +31,12 @@ private:
 	sf::Vector2i mousePosWindow; // Mouse position of window
 	sf::Vector2f mousePosView; 
 
+	// Resources
+	sf::Font font;
+
+	// Text
+	sf::Text uiText;
+
 	// Game Logic
 	bool endGame;
 	unsigned points; // Keep track of amount of points
@@ -47,6 +54,8 @@ private:
 
 	// Private functions
 	void initVariables();
+	void initFonts();
+	void initText();
 	void initWindow();
 	void initEnemies();
 
@@ -64,12 +73,13 @@ public:
 	void spawnEnemies();
 
 	void pollEvents();
-
 	void updateMousePosition();
 	void updateEnemies();
+	void updateText();
 	void update(); // TIP: CTRL + . to define function in .cpp file
 	
-	void renderEnemies();
+	void renderText(sf::RenderTarget& target);
+	void renderEnemies(sf::RenderTarget& target);
 	void render();
 };
 
